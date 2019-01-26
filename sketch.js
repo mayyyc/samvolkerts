@@ -82,8 +82,8 @@ function draw() {
         // width = 1/2 faceWidth
         foodWidth = bodyWidth * 3 / 5;
         foodHeight = foodWidth / foodRatio[foodIndex];
-        foodX = bodyX + 1 * bodyWidth / 6;
-        foodY = bodyY;
+        foodX = bodyX + bodyWidth / 8;
+        foodY = bodyY - bodyHeight / 9;
         image (foodArray[foodIndex], foodX, foodY, foodWidth, foodHeight);
         // 3 - hands
         handsWidth = bodyWidth / ratioBodyHand;
