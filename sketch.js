@@ -51,12 +51,14 @@ function setup() {
     if (windowWidth > windowHeight) isDesktop = true;
     foodIndex = Math.floor(random(0, 4));
   	createCanvas(windowWidth, windowHeight);
-    frameRate(8);
+    frameRate(6);
     background(colorArray[foodIndex]);
 }
 
 function draw() {
     background(colorArray[foodIndex]);
+    currentFaceMovement += increment; 
+    if (currentFaceMovement % faceMovement == 0) increment = -increment;
 
     if (isDesktop) { // on desktop
         // 0 - body
@@ -67,37 +69,38 @@ function draw() {
         bodyX = (windowWidth - bodyWidth) / 2;
         // y axis align bottom
         bodyY = windowHeight - bodyHeight;
-        // load image
-        image(bodyImage, bodyX, bodyY, bodyWidth, bodyHeight);
-        // 1 - face
-        faceWidth = bodyWidth / ratioBodyFace;
-        faceHeight = faceWidth / ratioFace;
-        currentFaceMovement += increment; 
-        if (currentFaceMovement % faceMovement == 0) increment = -increment;
-        faceX = bodyX + offsetFaceX * faceWidth;
-        faceY = bodyY + offsetFaceY * faceHeight;
-        // load image
-        image(faceImage, faceX, faceY + currentFaceMovement, faceWidth, faceHeight);
-        // 2 - food
-        // width = 1/2 faceWidth
-        foodWidth = bodyWidth * 3 / 5;
-        foodHeight = foodWidth / foodRatio[foodIndex];
-        foodX = bodyX + bodyWidth / 8;
-        foodY = bodyY - bodyHeight / 9;
-        image (foodArray[foodIndex], foodX, foodY, foodWidth, foodHeight);
-        // 3 - hands
-        handsWidth = bodyWidth / ratioBodyHand;
-        handsHeight = handsWidth / ratioHand;
-        // x axis faceX + offset
-        handsX = bodyX + offsetHand * handsWidth;
-        // y axis align bottom
-        handsY = windowHeight - handsHeight;
-        // load image
-        image(handsImage, handsX, handsY, handsWidth, handsHeight);            
     } else { // on mobile
-        // align center, bottom
+        // 0 - body
         // width = windowWidth
-        image(faceImage, 0, 0);
-        image(handsImage, 0, 0);    
+        bodyWidth = windowWidth;
+        bodyHeight = bodyWidth / ratioBody;
+        // x axis align center
+        bodyX = 0;
+        // y axis align bottom
+        bodyY = windowHeight - bodyHeight;
     }
+    // 1 - face
+    faceWidth = bodyWidth / ratioBodyFace;
+    faceHeight = faceWidth / ratioFace;
+    faceX = bodyX + offsetFaceX * faceWidth;
+    faceY = bodyY + offsetFaceY * faceHeight;
+    // 2 - food
+    foodWidth = bodyWidth * 3 / 5;
+    foodHeight = foodWidth / foodRatio[foodIndex];
+    foodX = bodyX + bodyWidth / 8;
+    foodY = bodyY - bodyHeight / 9;
+    // 3 - hands
+    handsWidth = bodyWidth / ratioBodyHand;
+    handsHeight = handsWidth / ratioHand;
+    handsX = bodyX + offsetHand * handsWidth;
+    handsY = windowHeight - handsHeight;    
+    // load image
+    image(bodyImage, bodyX, bodyY, bodyWidth, bodyHeight);
+    image(faceImage, faceX, faceY + currentFaceMovement, faceWidth, faceHeight);
+    image (foodArray[foodIndex], foodX, foodY, foodWidth, foodHeight);
+    image(handsImage, handsX, handsY, handsWidth, handsHeight);            
+}
+
+function deviceShaken() {
+    foodIndex = Math.floor(random(0, 4));
 }
