@@ -45,6 +45,10 @@ const quoteDisplayDuration = 60;
 let quoteDisplayCurrentCount = 0;
 let isDisplaying = false;
 let quoteFont;
+let nameColor;
+let nameFont;
+let name;
+let isNameVisible = true;
 
 function preload() {
     foodArray[0] = loadImage('burger.png');
@@ -59,6 +63,8 @@ function preload() {
     colorArray[2] = color(255,111,105);
     colorArray[3] = color(255,204,92);
     quoteFont = loadFont('RockSalt.ttf');
+    nameColor = color(191, 191, 191);
+    nameFont = loadFont('Staatliches.ttf');
 }
 function setup() {
     angleMode(DEGREES);
@@ -71,10 +77,18 @@ function setup() {
     quote = new Quote();
     quote.updateQuote();
     quote.updatePosition();
+    name = new Name();
 }
 
 function draw() {
     background(colorArray[foodIndex]);
+
+    if (!isNameVisible) {
+        name.moveIn();
+    }
+
+    name.displayLastName();
+    name.displayFirstName();
 
     if(!isTouching) {
         faceAnimationCurrent += faceAnimationIncrement; 
@@ -134,6 +148,7 @@ function draw() {
         if (fadeInCurrentCount < fadeInDuration) {
             currentFade = fadeInCurrentCount / fadeInDuration;
             quote.displayDialogBox();
+            name.moveOut();
             fadeInCurrentCount ++;    
         } else {
             if (quoteDisplayCurrentCount < quoteDisplayDuration) {
@@ -141,7 +156,8 @@ function draw() {
                 quote.displayQuote();
                 quoteDisplayCurrentCount ++;    
             } else {
-                resetQuotes();    
+                resetQuotes();
+                isNameVisible = false;
             }
         }
     }
@@ -155,6 +171,7 @@ function touchStarted() {
 }
 function touchEnded() {
     resetQuotes();
+    isNameVisible = false;
 }
 
 function getRandomNoRepeat(min, max, prev) {
@@ -172,6 +189,59 @@ function resetQuotes() {
     quoteDisplayCurrentCount = 0;
     quote.updateQuote();
     quote.updatePosition();
+}
+
+class Name {
+    constructor() {
+        this.xFirstName = windowWidth / 2;
+        this.yFirstName = windowHeight / 4;
+        this.sizeFirstName = 260;
+        this.xLastName = windowWidth / 2;
+        this.yLastName = windowHeight / 2.8;
+        this.sizeLastName = 100;
+        this.strokeWeight = 8;
+        if (! isDesktop) {
+            this.sizeFirstName = 460;
+            this.sizeLastName = 180;
+            this.strokeWeight = 12;
+            this.yFirstName = windowHeight / 4;
+            this.yLastName = windowHeight / 3;
+        }
+    }
+    displayFirstName() {
+        fill(255);
+        stroke(0);
+        strokeWeight(this.strokeWeight);
+        textFont(nameFont);
+        textAlign(CENTER);
+        textSize(this.sizeFirstName);
+        text("SAM", this.xFirstName, this.yFirstName);
+    }
+    displayLastName() {
+        fill(255);
+        stroke(0);
+        strokeWeight(this.strokeWeight);
+        textFont(nameFont);
+        textAlign(CENTER);
+        textSize(this.sizeLastName);
+        text("VOLKERTS", this.xLastName, this.yLastName);
+    }
+    moveOut() {
+        if (this.xFirstName >  - windowWidth / 2) {
+            this.xFirstName -= windowWidth / fadeInDuration;
+            this.xLastName += windowWidth / fadeInDuration; 
+        } else {
+            isNameVisible = false;
+        }
+    }
+    moveIn() {
+        if (this.xFirstName <  windowWidth / 2) {
+            this.xFirstName += windowWidth / fadeInDuration; 
+            this.xLastName -= windowWidth  / fadeInDuration; 
+        } else {
+            isNameVisible = true;
+        }
+    }
 }
 
 class Quote {
@@ -200,7 +270,8 @@ class Quote {
         ellipse(this.x, this.y, this.size * currentFade, this.size * this.ratio * currentFade);
     }
     displayQuote() {
-        fill(0)
+        fill(0);
+        stroke(2);
         textFont(quoteFont);
         textAlign(CENTER);
         textSize(this.size / 10);
