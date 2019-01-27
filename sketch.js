@@ -78,26 +78,7 @@ function setup() {
     quote.updateQuote();
     quote.updatePosition();
     name = new Name();
-}
 
-function draw() {
-    background(colorArray[foodIndex]);
-
-    if (!isNameVisible) {
-        name.moveIn();
-    }
-
-    name.displayLastName();
-    name.displayFirstName();
-
-    if(!isTouching) {
-        faceAnimationCurrent += faceAnimationIncrement; 
-        if (faceAnimationCurrent % faceAnimation == 0) faceAnimationIncrement = -faceAnimationIncrement;    
-    }
-
-    if (keyIsPressed === true) {
-        foodIndex = getRandomNoRepeat(0, foodArray.length, foodIndex);
-    }
 
     if (isDesktop) { // on desktop
         // 0 - body
@@ -133,6 +114,26 @@ function draw() {
     handsHeight = handsWidth / ratioHand;
     handsX = bodyX + offsetHand * handsWidth;
     handsY = windowHeight - handsHeight;    
+}
+
+function draw() {
+    background(colorArray[foodIndex]);
+
+    if (!isNameVisible) {
+        name.moveIn();
+    }
+
+    name.displayLastName();
+    name.displayFirstName();
+
+    if(!isTouching) {
+        faceAnimationCurrent += faceAnimationIncrement; 
+        if (faceAnimationCurrent % faceAnimation == 0) faceAnimationIncrement = -faceAnimationIncrement;    
+    }
+
+    if (keyIsPressed === true) {
+        foodIndex = getRandomNoRepeat(0, foodArray.length, foodIndex);
+    }
     // load image
     image(bodyImage, bodyX, bodyY, bodyWidth, bodyHeight);
     push();
