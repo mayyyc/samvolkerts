@@ -40,10 +40,8 @@ let currentFade;
 let isFading = false;
 const quoteArray = ["THAT'S WILD.", "FUCK YEAH."];
 let quoteIndex = 0;
-const quoteMaximum = 3;
-let quoteCurrentCount = 0;
 let quote;
-const quoteDisplayDuration = 30;
+const quoteDisplayDuration = 60;
 let quoteDisplayCurrentCount = 0;
 let isDisplaying = false;
 let quoteFont;
@@ -133,26 +131,18 @@ function draw() {
     image(handsImage, handsX, handsY, handsWidth, handsHeight);
 
     if (isTouching) {
-        if (quoteCurrentCount < quoteMaximum) {
-            if (fadeInCurrentCount < fadeInDuration) {
-                currentFade = fadeInCurrentCount / fadeInDuration;
-                quote.displayDialogBox();
-                fadeInCurrentCount ++;    
-            } else {
-                if (quoteDisplayCurrentCount < quoteDisplayDuration) {
-                    quote.displayDialogBox();
-                    quote.displayQuote();
-                    quoteDisplayCurrentCount ++;    
-                } else {
-                    fadeInCurrentCount = 0;
-                    quoteDisplayCurrentCount = 0;
-                    quoteCurrentCount ++;
-                    quote.updateQuote(); 
-                    quote.updatePosition();       
-                }
-            }
+        if (fadeInCurrentCount < fadeInDuration) {
+            currentFade = fadeInCurrentCount / fadeInDuration;
+            quote.displayDialogBox();
+            fadeInCurrentCount ++;    
         } else {
-            resetQuotes();
+            if (quoteDisplayCurrentCount < quoteDisplayDuration) {
+                quote.displayDialogBox();
+                quote.displayQuote();
+                quoteDisplayCurrentCount ++;    
+            } else {
+                resetQuotes();    
+            }
         }
     }
 }
@@ -223,17 +213,17 @@ class Quote {
     updatePosition() {
         if (isDesktop) {
             this.x = random(this.size, windowWidth - this.size);
-            this.y = random(this.size / 2, windowHeight /2 - this.size / 2);    
+            this.y = random(this.size * this.ratio / 2, windowHeight / 3 - this.size * this.ratio / 2);    
         } else {
             this.x = random(this.size / 2, windowWidth - this.size / 2);
-            this.y = random(this.size / (2 * this.ratio), windowHeight /2 - this.size / (2 * this.ratio));    
+            this.y = random(this.size  * this.ratio / 2, windowHeight / 3 - this.size  * this.ratio / 2);    
         }
     }
     updateSize() {
         if (isDesktop) {
-            this.size = 300;
+            this.size = 500;
         } else {
-            this.size = windowWidth / 2;
+            this.size = 0.8 * windowWidth;
         }
     }
 }
