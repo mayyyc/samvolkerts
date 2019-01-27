@@ -30,19 +30,20 @@ const foodRatio = [304 / 235, 398 / 478, 451 / 281, 399 / 406];
 let foodIndex = 0;
 let colorArray = new Array(4);
 let isDesktop = false;
-const faceAnimation = 3;
+const faceAnimation = 10;
 let faceAnimationCurrent = 0;
 let faceAnimationIncrement = 1;
 let isTouching = false;
-const fadeInDuration = 12;
+const fadeInDuration = 15;
 let fadeInCurrentCount = 0;
+let currentFade;
 let isFading = false;
 const quoteArray = ["THAT'S WILD.", "FUCK YEAH."];
 let quoteIndex = 0;
 const quoteMaximum = 3;
-let quoteCurrentCount;
+let quoteCurrentCount = 0;
 let quote;
-const quoteDisplayDuration = 9;
+const quoteDisplayDuration = 30;
 let quoteDisplayCurrentCount = 0;
 let isDisplaying = false;
 let quoteFont;
@@ -67,9 +68,11 @@ function setup() {
     if (windowWidth > windowHeight) isDesktop = true;
     foodIndex = Math.floor(random(0, 4));
   	createCanvas(windowWidth, windowHeight);
-    frameRate(6);
+    frameRate(30);
     background(colorArray[foodIndex]);
-    quote = new Quote(200, 200, 200, quoteArray[0]);
+    quote = new Quote();
+    quote.updateQuote();
+    quote.updatePosition();
 }
 
 function draw() {
@@ -121,9 +124,8 @@ function draw() {
     // load image
     image(bodyImage, bodyX, bodyY, bodyWidth, bodyHeight);
     push();
-    // rotate(faceAnimationCurrent);
-    translate(faceX, faceY + faceAnimationCurrent);
-    rotate(faceAnimationCurrent / 4);
+    translate(faceX, faceY + faceAnimationCurrent / 5);
+    rotate(faceAnimationCurrent / 20);
     image(faceImage, 0, 0, faceWidth, faceHeight);
     // image(faceImage, faceX, faceY + faceAnimationCurrent, faceWidth, faceHeight);
     pop();
@@ -131,14 +133,26 @@ function draw() {
     image(handsImage, handsX, handsY, handsWidth, handsHeight);
 
     if (isTouching) {
-        if (fadeInCurrentCount < fadeInDuration) {
-            quote.displayDialogBox();
-            fadeInCurrentCount ++;    
-        } else {
-            if (quoteDisplayCurrentCount < quoteDisplayDuration) {
+        if (quoteCurrentCount < quoteMaximum) {
+            if (fadeInCurrentCount < fadeInDuration) {
+                currentFade = fadeInCurrentCount / fadeInDuration;
                 quote.displayDialogBox();
-                quote.displayQuote();    
+                fadeInCurrentCount ++;    
+            } else {
+                if (quoteDisplayCurrentCount < quoteDisplayDuration) {
+                    quote.displayDialogBox();
+                    quote.displayQuote();
+                    quoteDisplayCurrentCount ++;    
+                } else {
+                    fadeInCurrentCount = 0;
+                    quoteDisplayCurrentCount = 0;
+                    quoteCurrentCount ++;
+                    quote.updateQuote(); 
+                    quote.updatePosition();       
+                }
             }
+        } else {
+            resetQuotes();
         }
     }
 }
@@ -150,7 +164,7 @@ function touchStarted() {
     isTouching = true;
 }
 function touchEnded() {
-    isTouching = false;
+    resetQuotes();
 }
 
 function getRandomNoRepeat(min, max, prev) {
@@ -161,25 +175,65 @@ function getRandomNoRepeat(min, max, prev) {
     return ran;
 }
 
+function resetQuotes() {
+    isTouching = false;
+    quoteCurrentCount = 0;
+    fadeInCurrentCount = 0;
+    quoteDisplayCurrentCount = 0;
+    quote.updateQuote();
+    quote.updatePosition();
+}
+
 class Quote {
-    constructor(x, y, size, quote) {
-        this.x = x;
-        this.y = y;
-        this.size = size;
-        this.quote = quote;
-        this.ratio = 1 / 2;
+    constructor() {
+        this.x;
+        this.y;
+        this.size;
+        this.quote;
+        this.ratio = 0.4;
+
+        this.updateSize();
     }
     displayDialogBox() {
-        let currentFadeRatio = fadeInCurrentCount / fadeInDuration;
+        let faceCenterX = faceX + faceWidth / 2;
+        let faceCenterY = faceY + faceHeight / 2;
+        let slopeArrow = (faceCenterX - this.x) / (faceCenterY - this.y);
         fill(255);
         stroke(0);
-        strokeWeight(4);
-        ellipse(this.x, this.y, this.size * currentFadeRatio, this.size * this.ratio * currentFadeRatio);
+        strokeWeight(5);
+        // draw arrow
+        beginShape();
+        vertex(this.x, this.y);
+        vertex(slopeArrow * this.size * this.ratio * currentFade + this.x, this.y + this.size * this.ratio * currentFade);
+        vertex(this.x + this.size  * currentFade / 8, this.y);
+        endShape();        
+        ellipse(this.x, this.y, this.size * currentFade, this.size * this.ratio * currentFade);
     }
     displayQuote() {
         fill(0)
         textFont(quoteFont);
-        textSize(36);
-        text(this.quote, 10, 50);
+        textAlign(CENTER);
+        textSize(this.size / 10);
+        text(this.quote, this.x, this.y * 1.05);
+    }
+    updateQuote() {
+        quoteIndex = getRandomNoRepeat(0, quoteArray.length, quoteIndex);
+        this.quote = quoteArray[quoteIndex];
+    }
+    updatePosition() {
+        if (isDesktop) {
+            this.x = random(this.size, windowWidth - this.size);
+            this.y = random(this.size / 2, windowHeight /2 - this.size / 2);    
+        } else {
+            this.x = random(this.size / 2, windowWidth - this.size / 2);
+            this.y = random(this.size / (2 * this.ratio), windowHeight /2 - this.size / (2 * this.ratio));    
+        }
+    }
+    updateSize() {
+        if (isDesktop) {
+            this.size = 300;
+        } else {
+            this.size = windowWidth / 2;
+        }
     }
 }
